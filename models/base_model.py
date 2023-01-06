@@ -2,19 +2,24 @@
 """This module defines a base class for all models in our hbnb clone"""
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Column, DATETIME
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, DATETIME
 from models import storage_type
-
 
 Base = declarative_base()
 
 
 class BaseModel:
-    """A base class for all hbnb models"""
+    """A base class for all hbnb models
+    Attributes:
+        id (sqlalchemy String): The BaseModel id.
+        created_at (sqlalchemy DateTime): The datetime at creation.
+        updated_at (sqlalchemy DateTime): The datetime of last update.
+    """
     id = Column(String(60),
                 nullable=False,
-                primary_key=True)
+                primary_key=True,
+                unique=True)
     created_at = Column(DATETIME,
                         nullable=False,
                         default=datetime.utcnow())
@@ -23,7 +28,7 @@ class BaseModel:
                         default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
-        """Instantiates a new model"""
+        """Instatntiates a new model"""
         if not kwargs:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
@@ -31,10 +36,9 @@ class BaseModel:
         else:
             for k in kwargs:
                 if k in ['created_at', 'updated_at']:
-                    setattr(self, k, fromisoformat(kwargs[k]))
+                    setattr(self, k, datetime.fromisoformat(kwargs[k]))
                 elif k != '__class__':
                     setattr(self, k, kwargs[k])
-
             if storage_type == 'db':
                 if not hasattr(kwargs, 'id'):
                     setattr(self, 'id', str(uuid.uuid4()))
@@ -57,16 +61,16 @@ class BaseModel:
 
     def to_dict(self):
         """Convert instance into dict format"""
-        dictionary = self.__dict__.copy()
-        dictionary['__class__'] = self.__class__.__name__
-        for k in dictionary:
-            if type(dictionary[k]) is datetime:
-                dictionary[k] = dictionary[k].isoformat()
-        if '_sa_instance_state' in dictionary.keys():
-            del(dictionary['_sa_instance_state'])
-        return (dictionary)
+        dct = self.__dict__.copy()
+        dct['__class__'] = self.__class__.__name__
+        for k in dct:
+            if type(dct[k]) is datetime:
+                dct[k] = dct[k].isoformat()
+        if '_sa_instance_state' in dct.keys():
+            del(dct['_sa_instance_state'])
+        return dct
 
     def delete(self):
-        """Deletes current instance from the storage"""
+        '''deletes the current instance from the storage'''
         from models import storage
         storage.delete(self)
