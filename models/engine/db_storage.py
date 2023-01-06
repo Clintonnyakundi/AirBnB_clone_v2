@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Database storage engine
 """
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -46,13 +47,13 @@ class DBStorage:
             for c in classes:
                 objs = self.__session.query(c).all()
                 for obj in objs:
-                    key = obj.__class__.name + '.' + obj.id
+                    key = obj.__class__.__name__ + '.' + obj.id
                     dct[key] = obj
 
         else:
             objs = self.__session.query(cls).all()
             for obj in objs:
-                key = obj.__class__.name + '.' + obj.id
+                key = obj.__class__.__name__ + '.' + obj.id
                 dct[key] = obj
 
         return (dct)
