@@ -10,18 +10,6 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    def __init__(self):
-        """Initializes the instance"""
-        self.model_classes = {
-            'BaseModel': import_module('models.base_model').BaseModel,
-            'User': import_module('models.user').User,
-            'State': import_module('models.state').State,
-            'City': import_module('models.city').City,
-            'Amenity': import_module('models.amenity').Amenity,
-            'Place': import_module('models.place').Place,
-            'Review': import_module('models.review').Review
-        }
-
     def all(self):
         """Returns a dictionary of models currently in storage"""
         if cls is None:
@@ -49,13 +37,27 @@ class FileStorage:
 
     def reload(self):
         """Loads storage dictionary from file"""
-        classes = self.model_classes
-        if os.path.isfile(self.__file_path):
+          from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
+
+        classes = {
+                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                    'State': State, 'City': City, 'Amenity': Amenity,
+                    'Review': Review
+                  }
+        try:
             temp = {}
-            with open(self.__file_path, 'r') as file:
-                temp = json.load(file)
+            with open(self.__file_path, 'r') as f:
+                temp = json.load(f)
                 for key, val in temp.items():
                     self.all()[key] = classes[val['__class__']](**val)
+        except FileNotFoundError:
+            pass
  
     def delete(self, obj=None):
         """Removes an object from the storage dictionary"""
