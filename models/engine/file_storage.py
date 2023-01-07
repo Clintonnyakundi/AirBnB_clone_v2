@@ -29,11 +29,12 @@ class FileStorage:
 
     def save(self):
         """Saves storage dictionary to file"""
-       with open(self.__file_path, 'w') as file:
+       with open(self.__file_path, 'w') as f:
             temp = {}
-            for key, val in self.__objects.items():
+            temp.update(self.__objects)
+            for key, val in temp.items():
                 temp[key] = val.to_dict()
-            json.dump(temp, file)
+            json.dump(temp, f)
 
     def reload(self):
         """Loads storage dictionary from file"""
@@ -62,10 +63,11 @@ class FileStorage:
     def delete(self, obj=None):
         """Removes an object from the storage dictionary"""
         if obj is None:
-            obj_key = obj.to_dict()['__class__'] + '.' + obj.id
-            if obj_key in self.__objects.keys():
-                del self.__objects[obj_key]
-
+            return
+        obj_key = obj.to_dict()['__class__'] + '.' + obj.id
+        if obj_key in self.__objects.keys():
+            del self.__objects[obj_key]
+            
     def close(self):
         """Closes the storage engine."""
         self.reload()
