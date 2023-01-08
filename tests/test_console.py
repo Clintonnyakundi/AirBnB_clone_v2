@@ -19,6 +19,7 @@ from tests import clear_stream
 class TestHBNBCommand(unittest.TestCase):
     """Represents the test class for the HBNBCommand class.
     """
+
     @unittest.skipIf(
         os.getenv('HBNB_TYPE_STORAGE') == 'db', 'FileStorage test')
     def test_fs_create(self):
@@ -26,21 +27,21 @@ class TestHBNBCommand(unittest.TestCase):
         """
         with patch('sys.stdout', new=StringIO()) as cout:
             cons = HBNBCommand()
-            cons.onecmd('create City name="Texas"')
-            mdl_id = cout.getvalue().strip()
+            cons.onecmd('create City name="Arizona"')
+            result_id = cout.getvalue().strip()
             clear_stream(cout)
-            self.assertIn('City.{}'.format(mdl_id), storage.all().keys())
-            cons.onecmd('show City {}'.format(mdl_id))
-            self.assertIn("'name': 'Texas'", cout.getvalue().strip())
+            self.assertIn('City.{}'.format(result_id), storage.all().keys())
+            cons.onecmd('show City {}'.format(result_id))
+            self.assertIn("'name': 'Arizona'", cout.getvalue().strip())
             clear_stream(cout)
-            cons.onecmd('create User name="James" age=17 height=5.9')
-            mdl_id = cout.getvalue().strip()
-            self.assertIn('User.{}'.format(mdl_id), storage.all().keys())
+            cons.onecmd('create User name="Mohammed" age=37 height=4.8')
+            result_id = cout.getvalue().strip()
+            self.assertIn('User.{}'.format(result_id), storage.all().keys())
             clear_stream(cout)
-            cons.onecmd('show User {}'.format(mdl_id))
-            self.assertIn("'name': 'James'", cout.getvalue().strip())
-            self.assertIn("'age': 17", cout.getvalue().strip())
-            self.assertIn("'height': 5.9", cout.getvalue().strip())
+            cons.onecmd('show User {}'.format(result_id))
+            self.assertIn("'name': 'Mohammed'", cout.getvalue().strip())
+            self.assertIn("'age': 37", cout.getvalue().strip())
+            self.assertIn("'height': 4.8", cout.getvalue().strip())
 
     @unittest.skipIf(
         os.getenv('HBNB_TYPE_STORAGE') != 'db', 'DBStorage test')
@@ -49,13 +50,11 @@ class TestHBNBCommand(unittest.TestCase):
         """
         with patch('sys.stdout', new=StringIO()) as cout:
             cons = HBNBCommand()
-            # creating a model with non-null attribute(s)
-            with self.assertRaises(sqlalchemy.exc.OperationalError):
-                cons.onecmd('create User')
             # creating a User instance
             clear_stream(cout)
-            cons.onecmd('create User email="john25@gmail.com" password="123"')
-            mdl_id = cout.getvalue().strip()
+            cons.onecmd(
+                'create User email="peter@gmail.com" password="password129"')
+            result_id = cout.getvalue().strip()
             dbc = MySQLdb.connect(
                 host=os.getenv('HBNB_MYSQL_HOST'),
                 port=3306,
@@ -64,13 +63,26 @@ class TestHBNBCommand(unittest.TestCase):
                 db=os.getenv('HBNB_MYSQL_DB')
             )
             cursor = dbc.cursor()
-            cursor.execute('SELECT * FROM users WHERE id="{}"'.format(mdl_id))
+            cursor.execute('SELECT * FROM users WHERE id="%s"' % result_id)
             result = cursor.fetchone()
             self.assertTrue(result is not None)
-            self.assertIn('john25@gmail.com', result)
-            self.assertIn('123', result)
+            self.assertIn('peter@gmail.com', result)
+            self.assertIn('password129', result)
             cursor.close()
             dbc.close()
+
+    @unittest.skipIf(
+        os.getenv('HBNB_TYPE_STORAGE') != 'db', 'DBStorage test')
+    def test_db_create_with_non_null_attrs(self):
+        """Tests the create command with the database storage.
+        """
+        with patch('sys.stdout', new=StringIO()) as cout:
+            clear_stream(cout)
+            cons = HBNBCommand()
+            # creating a model with non-null attribute(s)
+            with self.assertRaises(sqlalchemy.exc.OperationalError):
+                cons.onecmd('create User')
+            clear_stream(cout)
 
     @unittest.skipIf(
         os.getenv('HBNB_TYPE_STORAGE') != 'db', 'DBStorage test')
@@ -80,7 +92,7 @@ class TestHBNBCommand(unittest.TestCase):
         with patch('sys.stdout', new=StringIO()) as cout:
             cons = HBNBCommand()
             # showing a User instance
-            obj = User(email="john25@gmail.com", password="123")
+            obj = User(email="peter@gmail.com", password="password128")
             dbc = MySQLdb.connect(
                 host=os.getenv('HBNB_MYSQL_HOST'),
                 port=3306,
@@ -89,7 +101,7 @@ class TestHBNBCommand(unittest.TestCase):
                 db=os.getenv('HBNB_MYSQL_DB')
             )
             cursor = dbc.cursor()
-            cursor.execute('SELECT * FROM users WHERE id="{}"'.format(obj.id))
+            cursor.execute('SELECT * FROM `users` WHERE id="%s"' % obj.id)
             result = cursor.fetchone()
             self.assertTrue(result is None)
             cons.onecmd('show User {}'.format(obj.id))
@@ -106,15 +118,15 @@ class TestHBNBCommand(unittest.TestCase):
                 db=os.getenv('HBNB_MYSQL_DB')
             )
             cursor = dbc.cursor()
-            cursor.execute('SELECT * FROM users WHERE id="{}"'.format(obj.id))
+            cursor.execute('SELECT * FROM `users` WHERE id="%s"' % obj.id)
             clear_stream(cout)
             cons.onecmd('show User {}'.format(obj.id))
             result = cursor.fetchone()
             self.assertTrue(result is not None)
-            self.assertIn('john25@gmail.com', result)
-            self.assertIn('123', result)
-            self.assertIn('john25@gmail.com', cout.getvalue())
-            self.assertIn('123', cout.getvalue())
+            self.assertIn('peter@gmail.com', result)
+            self.assertIn('password128', result)
+            self.assertIn('peter@gmail.com', cout.getvalue())
+            self.assertIn('password128', cout.getvalue())
             cursor.close()
             dbc.close()
 
@@ -133,10 +145,10 @@ class TestHBNBCommand(unittest.TestCase):
                 db=os.getenv('HBNB_MYSQL_DB')
             )
             cursor = dbc.cursor()
-            cursor.execute('SELECT COUNT(*) FROM states;')
-            res = cursor.fetchone()
-            prev_count = int(res[0])
-            cons.onecmd('create State name="Enugu"')
+            cursor.execute('SELECT COUNT(*) FROM `states`;')
+            result = cursor.fetchone()
+            prev_count = int(result[0])
+            cons.onecmd('create State name="Abia"')
             clear_stream(cout)
             cons.onecmd('count State')
             cnt = cout.getvalue().strip()
