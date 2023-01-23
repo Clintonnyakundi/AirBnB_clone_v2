@@ -3,37 +3,32 @@
 Fabric script (based on the file 1-pack_web_static.py) that distributes
 an archive to your web servers,using the function do_deploy
 """
-from fabric.api import *
 import os
-
-env.hosts = ["100.25.205.123", "100.25.47.49"]
-env.user = "ubuntu"
+from datetime import datetime
+from fabric.api import *
 
 
 def do_deploy(archive_path):
-    """
-    distributes an archive to my web servers
+    """Deploys the static files to the host servers.
+    Args:
+        archive_path (str): The path to the archived static files.
     """
     if not os.path.exists(archive_path):
         return False
-
+    file_name = os.path.basename(archive_path)
+    folder_name = file_name.replace(".tgz", "")
+    folder_path = "/data/web_static/releases/{}/".format(folder_name)
     success = False
     try:
-        put(archive_path, "/tmp/")
-        basename = os.path.basename(archive_path)
-        if basename[-4:] == ".tgz":
-            name = basename[:-4]
-
-        newDir = "/data/web_static/releases/" + name
-        run("mkdir -p " + newDir)
-        run("tar -xzf /tmp/{} -C {}".format(basename, newDir))
-
-        run("rm /tmp/{}".format(basename))
-        run("mv {}/web_static/* {}".format(newDir, newDir))
-        run("rm -rf {}/web_static".format(newDir))
+        put(archive_path, "/tmp/{}".format(file_name))
+        run("mkdir -p {}".format(folder_path))
+        run("tar -xzf /tmp/{} -C {}".format(file_name, folder_path))
+        run("rm -rf /tmp/{}".format(file_name))
+        run("mv {}web_static/* {}".format(folder_path, folder_path))
+        run("rm -rf {}web_static".format(folder_path))
         run("rm -rf /data/web_static/current")
-        run("ln -s {} /data/web_static/current".format(newDir))
-
+        run("ln -s {} /data/web_static/current".format(folder_path))
+        print('New version deployed!')
         success = True
     except Exception:
         success = False
