@@ -16,8 +16,12 @@ def do_deploy(archive_path):
     """
     if not os.path.exists(archive_path):
         return False
+    
+    results = []
 
     upload = put(archive_path, "/tmp/")
+    results.append(upload.succeeded)
+    
     basename = os.path.basename(archive_path)
     if basename[-4:] == ".tgz":
         name = basename[:-4]
