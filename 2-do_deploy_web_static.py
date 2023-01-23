@@ -16,24 +16,23 @@ def do_deploy(archive_path):
     """
     if not os.path.exists(archive_path):
         return False
-    
-    results = []
 
-    upload = put(archive_path, "/tmp/")
-    results.append(upload.succeeded)
-    
-    basename = os.path.basename(archive_path)
-    if basename[-4:] == ".tgz":
-        name = basename[:-4]
+    try:
+        put(archive_path, "/tmp/")
+        basename = os.path.basename(archive_path)
+        if basename[-4:] == ".tgz":
+            name = basename[:-4]
 
-    newDir = "/data/web_static/releases/" + name
-    run("mkdir -p " + newDir)
-    run("tar -xzf /tmp/{} -C {}".format(basename, newDir))
+        newDir = "/data/web_static/releases/" + name
+        run("mkdir -p " + newDir)
+        run("tar -xzf /tmp/{} -C {}".format(basename, newDir))
 
-    run("rm /tmp/{}".format(basename))
-    run("mv {}/web_static/* {}".format(newDir, newDir))
-    run("rm -rf {}/web_static".format(newDir))
-    run("rm -rf /data/web_static/current")
-    run("ln -s {} /data/web_static/current".format(newDir))
+        run("rm /tmp/{}".format(basename))
+        run("mv {}/web_static/* {}".format(newDir, newDir))
+        run("rm -rf {}/web_static".format(newDir))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {} /data/web_static/current".format(newDir))
 
-    return True
+        return True
+    except Exception:
+        return False
