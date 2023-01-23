@@ -17,6 +17,7 @@ def do_deploy(archive_path):
     if not os.path.exists(archive_path):
         return False
 
+    success = False
     try:
         put(archive_path, "/tmp/")
         basename = os.path.basename(archive_path)
@@ -33,6 +34,7 @@ def do_deploy(archive_path):
         run("rm -rf /data/web_static/current")
         run("ln -s {} /data/web_static/current".format(newDir))
 
-        return True
+        success = True
     except Exception:
-        return False
+        success = False
+    return success
