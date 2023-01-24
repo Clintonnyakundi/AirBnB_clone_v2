@@ -1,20 +1,21 @@
+# Redo the task #0 but by using Puppet
 exec { 'a':
-  command => 'sudo apt-get update'
+  command => '/usr/bin/env apt-get update',
 }
 exec { 'b':
-  command => 'sudo apt-get -y install nginx'
+  command => '/usr/bin/env apt-get -y install nginx',
 }
 exec { 'c':
-  command => 'sudo ufw allow "Nginx HTTP"'
+  command => '/usr/bin/env ufw allow "Nginx HTTP"',
 }
 exec { 'd':
-  command => 'sudo mkdir -p /data/web_static/releases/test/ /data/web_static/shared/'
+  command => '/usr/bin/env mkdir -p /data/web_static/releases/test/ /data/web_static/shared/',
 }
 exec { 'e':
-  command => 'sudo touch /data/web_static/releases/test/index.html'
+  command => '/usr/bin/env touch /data/web_static/releases/test/index.html',
 }
 exec { 'f':
-  command => 'echo "
+  command => '/usr/bin/env echo "
 <html>
     <head></head>
     <body>
@@ -24,23 +25,23 @@ exec { 'f':
 " > /data/web_static/releases/test/index.html'
 }
 exec { 'g':
-  command => 'if [ -d "/data/web_static_current" ];
+  command => '/usr/bin/env if [ -d "/data/web_static_current" ];
 then
-    sudo rm -rf /data/web_static/current;
-fi;'
+    /usr/bin/env rm -rf /data/web_static/current;
+fi;',
 }
 exec { 'h':
-  command => 'sudo ln -sf /data/web_static/releases/test /data/web_static/current'
+  command => '/usr/bin/env ln -sf /data/web_static/releases/test /data/web_static/current',
 }
 exec { 'i':
-  command => 'sudo chown -hR ubuntu:ubuntu /data/'
+  command => '/usr/bin/env chown -hR ubuntu:ubuntu /data/',
 }
 exec { 'j':
-  command => 'sudo sed -i "38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n" /etc/nginx/sites-available/default'
+  command => '/usr/bin/env sed -i "38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n" /etc/nginx/sites-available/default',
 }
 exec { 'k':
-  command => 'sudo ln -sf "/etc/nginx/sites-available/default" "/etc/nginx/sites-enabled/default"'
+  command => '/usr/bin/env ln -sf "/etc/nginx/sites-available/default" "/etc/nginx/sites-enabled/default"',
 }
 exec { 'm':
-  command => 'sudo service nginx restart'
+  command => '/usr/bin/env service nginx restart',
 }
