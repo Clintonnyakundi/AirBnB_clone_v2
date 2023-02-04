@@ -32,7 +32,7 @@ def C_fun(text):
     Display C followed by value of text variable
     """
     text = text.replace('_', ' ')
-    return f"C {text}"
+    return "C %s" % text
 
 
 if __name__ == '__main__':
