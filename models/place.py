@@ -57,11 +57,8 @@ class Place(BaseModel, Base):
         price_by_night = 0
         latitude = 0.0
         longitude = 0.0
-        # reviews = []
-        # amenities = []
         amenity_ids = []
 
-    if getenv("HBNB_TYPE_STORAGE", None) != "db":
         @property
         def reviews(self):
             """Get a list of all linked Reviews."""
