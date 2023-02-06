@@ -1,49 +1,47 @@
 #!/usr/bin/python3
-'''database storage engine'''
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from models.amenity import Amenity
+""" DBStorage Class File """
+from os import getenv
 from models.base_model import Base
-from models.city import City
-from models.place import Place
-from models.review import Review
+from models.base_model import BaseModel
 from models.state import State
 from models.user import User
-from os import getenv
-
-if getenv('HBNB_TYPE_STORAGE') == 'db':
-    from models.place import place_amenity
-
-classes = {"User": User, "State": State, "City": City,
-           "Amenity": Amenity, "Place": Place, "Review": Review}
+from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
+from sqlalchemy import create_engine
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
 
 
 class DBStorage:
-    '''database storage engine for mysql storage'''
+    """ Define DBStorage class
+        Attributes:
+            __engine: linked to MySQL database
+            __session: create the currnet database session
+    """
     __engine = None
     __session = None
 
     def __init__(self):
-        '''instantiate new dbstorage instance'''
-        HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
-        HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
-        HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
-        HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
-        HBNB_ENV = getenv('HBNB_ENV')
-        self.__engine = create_engine(
-            'mysql+mysqldb://{}:{}@{}/{}'.format(
-                                           HBNB_MYSQL_USER,
-                                           HBNB_MYSQL_PWD,
-                                           HBNB_MYSQL_HOST,
-                                           HBNB_MYSQL_DB
-                                       ), pool_pre_ping=True)
+        """ create the engine self.__engine and self.__session"""
+        username = getenv("HBNB_MYSQL_USER")
+        password = getenv("HBNB_MYSQL_PWD")
+        host = getenv("HBNB_MYSQL_HOST")
+        db = getenv("HBNB_MYSQL_DB")
+        self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}"
+                                      .format(username, password, host, db),
+                                      pool_pre_ping=True)
 
-        if HBNB_ENV == 'test':
+        if getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        '''query on the current db session all cls objects'''
+        """ query on the currnet database session (self.__session)
+            all objects depeding of the class name, if cls=None
+            query all types of objects.
+        """
         if cls is None:
             objects = self.__session.query(State).all()
             objects.extend(self.__session.query(City).all())
@@ -58,35 +56,26 @@ class DBStorage:
         return {"{}.{}".format(type(i).__name__, i.id): i for i in objects}
 
     def new(self, obj):
-        '''adds the obj to the current db session'''
-        if obj is not None:
-            try:
-                self.__session.add(obj)
-                self.__session.flush()
-                self.__session.refresh(obj)
-            except Exception as ex:
-                self.__session.rollback()
-                raise ex
+        """ add the object to the currnet database session """
+        self.__session.add(obj)
 
     def save(self):
-        '''commit all changes of the current db session'''
+        """ commit all changes of the currnet database session """
         self.__session.commit()
 
     def delete(self, obj=None):
-        ''' deletes from the current databse session the obj
-            is it's not None
-        '''
+        """ delete obj from the currnet database session """
         if obj is not None:
-            self.__session.query(type(obj)).filter(
-                type(obj).id == obj.id).delete()
+            self.__session.delete(obj)
 
-    def reload(self):
-        '''reloads the database'''
+    def reload(self,):
+        """ create all talbes in the currnet database and new session """
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(bind=self.__engine,
                                        expire_on_commit=False)
-        self.__session = scoped_session(session_factory)()
+        Session = scoped_session(session_factory)
+        self.__session = Session()
 
     def close(self):
-        """closes the working SQLAlchemy session"""
+        """ call close() method on the private session attribute  """
         self.__session.close()
