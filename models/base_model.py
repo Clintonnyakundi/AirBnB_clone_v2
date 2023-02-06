@@ -58,7 +58,7 @@ class BaseModel:
         return my_dict
 
     def delete(self):
-        """ delete the currnet instance from the storage """
+        """ delete the current instance from the storage """
         models.storage.delete(self)
 
     def __str__(self):
