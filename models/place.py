@@ -16,7 +16,7 @@ from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.orm import relationship
 
-association_table = Table(
+place_amenity = Table(
     "place_amenity", Base.metadata,
     Column("place_id", String(60), ForeignKey("places.id"),
            primary_key=True, nullable=False),
