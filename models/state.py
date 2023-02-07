@@ -1,31 +1,34 @@
 #!/usr/bin/python3
-""" State Class File """
-from os import getenv
+""" holds class State"""
 import models
-from models.city import City
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String
+from models.city import City
+from os import getenv
+import sqlalchemy
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """ Define State Class
-        __tablename__: states
-        name: Column String(128) can't be null
-        cities: relationship with City, if State object deleted, all
-                linked City object must be deleted automatically,
-                and the reference name is state
-    """
-    __tablename__ = "states"
-    name = Column(String(128), nullable=False)
-    cities = relationship("City", backref="state", cascade="delete")
+    """Representation of state """
+    if models.storage_t == "db":
+        __tablename__ = 'states'
+        name = Column(String(128), nullable=False)
+        cities = relationship("City", backref="state")
+    else:
+        name = ""
 
-    if getenv("HBNB_TYPE_STORAGE", None) != "db":
+    def __init__(self, *args, **kwargs):
+        """initializes state"""
+        super().__init__(*args, **kwargs)
+
+    if models.storage_t != "db":
         @property
         def cities(self):
-            """ Returns the list of City instances with state_id """
-            cities_list = []
-            for city in list(models.storage.all(City).values()):
+            """getter for list of city instances related to the state"""
+            city_list = []
+            all_cities = models.storage.all(City)
+            for city in all_cities.values():
                 if city.state_id == self.id:
-                    cities_list.append(city)
-            return cities_list
+                    city_list.append(city)
+            return city_list
