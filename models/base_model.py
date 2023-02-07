@@ -13,6 +13,7 @@ Base = declarative_base()
 
 class BaseModel:
     """ Define BaseModel Class
+
       id Column: String(60) can't be null and it's primary key
       created_at Column: Datetime can't be null and the
                          default value is the current datetime
@@ -25,6 +26,7 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """Initilize public instance attributes
+
             args(list): Empty list
             kwargs(dict): dictionary that
             contain key/value of the attirbutes
@@ -58,7 +60,7 @@ class BaseModel:
         return my_dict
 
     def delete(self):
-        """ delete the current instance from the storage """
+        """ delete the currnet instance from the storage """
         models.storage.delete(self)
 
     def __str__(self):

@@ -9,6 +9,7 @@ from sqlalchemy import ForeignKey
 
 class Review(BaseModel, Base):
     """ Define Review Class
+
         __tablename__: reviews
         text: Column String(1024) can't be null
         place_id: Column String(60) ForeignKey to places.id can't be null

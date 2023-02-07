@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 
 class City(BaseModel, Base):
     """ Define City Class
+
         __tablename__: cities
         name: Column string(128) and can't be null
         state_id: Column string(60) Foreignkey to

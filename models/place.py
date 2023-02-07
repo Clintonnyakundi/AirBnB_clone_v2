@@ -26,6 +26,7 @@ place_amenity = Table('place_amenity', Base.metadata,
 
 class Place(BaseModel, Base):
     """ Define Place Class
+
         __tablename__: places
         city_id: Column String(60) ForeignKey to cities.id can't be null
         user_id: Column String(60) ForeignKey to users.id can't be null
@@ -56,7 +57,6 @@ class Place(BaseModel, Base):
     longitude = Column(Float)
     reviews = relationship("Review", backref="place", cascade="delete")
     amenities = relationship("Amenity", secondary="place_amenity",
-                             overlaps="place_amenities",
                              viewonly=False)
 
     if getenv("HBNB_TYPE_STORAGE", None) != "db":
@@ -82,7 +82,7 @@ class Place(BaseModel, Base):
         @amenities.setter
         def amenities(self, value):
             """
-                amenities that handles append method for adding
+                amentities that handles append method for adding
                 Amenity.id to the attribute amenity_ids, this
                 method should accept only Amenity object.
             """

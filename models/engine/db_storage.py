@@ -17,6 +17,7 @@ from sqlalchemy.orm import scoped_session
 
 class DBStorage:
     """ Define DBStorage class
+
         Attributes:
             __engine: linked to MySQL database
             __session: create the currnet database session

@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 
 class User(BaseModel, Base):
     """ Define User Class
+
         __tablename__: users
         email: Column String(128) can't be null
         password: Column String(128) can't be null

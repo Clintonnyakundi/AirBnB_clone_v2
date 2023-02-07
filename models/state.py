@@ -10,6 +10,7 @@ from sqlalchemy.orm import relationship
 
 class State(BaseModel, Base):
     """ Define State Class
+
         __tablename__: states
         name: Column String(128) can't be null
         cities: relationship with City, if State object deleted, all
