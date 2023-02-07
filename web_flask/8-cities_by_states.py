@@ -1,7 +1,5 @@
 #!/usr/bin/python3
-"""Starts a Flask web app
-Listens on 0.0.0.0 port 5000
-"""
+"""Starts a Flask web app"""
 from flask import Flask, render_template
 from models import storage
 
