@@ -1,28 +1,23 @@
 #!/usr/bin/python3
-"""Starts a Flask app
-Listens on 0.0.0.0 port 5000
-"""
-
+""" Start Flask Web Application """
+from flask import Flask
+from flask import render_template
 from models import storage
-from flask import Flask, render_template
+
 
 app = Flask(__name__)
 
 
-@app.route("/states_list", strict_slashes=False)
+@app.route('/states_list', strict_slashes=False)
 def states_list():
-    """
-    Displays html with the list of states sorted by name
-    """
-    states = storage.all('State')
-    return render_template("7-states_list.html", states=states)
+    """ return list of State Objects """
+    states = storage.all("State")
+    return render_template('7-states_list.html', states=states)
 
 
 @app.teardown_appcontext
 def teardown(exc):
-    """
-    Remove current SQLAlchemy Session
-    """
+    """ remove the current Session  """
     storage.close()
 
 
